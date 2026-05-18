@@ -145,20 +145,13 @@ $(function () {
     // Build payload — JSON body matches FormSubmit's documented AJAX format
     var $form = $(this);
     var phRaw = $('#phone').val().replace(/[\s()-]/g, '').replace(/^0/, '').replace(/^\+?61/, '');
-    var fullName = $.trim($('#fullname').val());
-    var emailAddr = $.trim($('#email').val());
-
     var payload = {
-      access_key: 'e0369e40-4dc0-4f35-968d-978c1c024858',
-      subject: 'New SecureYield enquiry — ' + fullName,
-      from_name: 'SecureYield Website',
-      name: fullName,
-      email: emailAddr,
+      name: $.trim($('#fullname').val()),
+      email: $.trim($('#email').val()),
       phone: '+61 ' + phRaw,
       investment_amount: $('#amount').val(),
       preferred_term: $('#term').val(),
-      ready_to_invest: $('#ready').val(),
-      replyto: emailAddr
+      ready_to_invest: $('#ready').val()
     };
 
     var $btn = $form.find('button[type=submit]');
@@ -166,12 +159,12 @@ $(function () {
     $btn.prop('disabled', true).text('Sending…');
     $('#formError').removeClass('show');
 
+    // text/plain content-type avoids the CORS preflight that Apps Script
+    // web apps can't satisfy. The script reads e.postData.contents and
+    // parses the JSON body manually.
     fetch($form.attr('action'), {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(payload)
     })
     .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
@@ -181,9 +174,8 @@ $(function () {
       if (result.ok && res && (res.success === 'true' || res.success === true)) {
         window.location.href = 'thanks.html';
       } else {
-        var msg = (res && res.message)
-          ? res.message
-          : "Sorry, we couldn't send your enquiry. Please try again, or email us directly.";
+        var msg = (res && (res.message || res.error))
+          || "Sorry, we couldn't send your enquiry. Please try again, or email us directly.";
         $('#formError').text('⚠ ' + msg).addClass('show');
       }
     })
