@@ -166,13 +166,18 @@ $(function () {
 
     var endpoint = $form.attr('action').replace('formsubmit.co/', 'formsubmit.co/ajax/');
 
+    // URL-encode the body to avoid a CORS preflight request.
+    // application/x-www-form-urlencoded is a "simple" content type, so the
+    // browser skips the OPTIONS preflight that FormSubmit's CORS layer fails.
+    var formBody = new URLSearchParams();
+    Object.keys(payload).forEach(function (key) {
+      formBody.append(key, payload[key]);
+    });
+
     fetch(endpoint, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify(payload)
+      headers: { 'Accept': 'application/json' },
+      body: formBody
     })
     .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
     .then(function (result) {
