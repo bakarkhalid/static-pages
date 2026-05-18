@@ -1,14 +1,19 @@
 import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 
-const ALLOWED_ORIGINS = new Set([
-  'http://localhost:3000',
-  'https://ratevault.org',
-  'https://www.ratevault.org',
-]);
+const DEFAULT_ORIGINS = ['http://localhost:3000'];
+
+function allowedOrigins(): Set<string> {
+  const fromEnv = (process.env.LEADS_INTAKE_ALLOWED_ORIGINS ?? '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return new Set([...DEFAULT_ORIGINS, ...fromEnv]);
+}
 
 function corsHeaders(origin: string | null) {
-  const allowOrigin = origin && ALLOWED_ORIGINS.has(origin) ? origin : 'http://localhost:3000';
+  const allowed = allowedOrigins();
+  const allowOrigin = origin && allowed.has(origin) ? origin : 'http://localhost:3000';
   return {
     'Access-Control-Allow-Origin': allowOrigin,
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
