@@ -1,5 +1,5 @@
 /* ============================================
-   SecureYield — Main JavaScript
+   RateVault — Main JavaScript
    Requires: jQuery 3.7+
    ============================================ */
 
@@ -181,7 +181,7 @@ $(function () {
     })
     .catch(function (err) {
       console.error('FormSubmit error:', err);
-      $('#formError').text("⚠ Network error — please try again, or email us directly at enquiries@secureyield.example.").addClass('show');
+      $('#formError').text("⚠ Network error — please try again, or email us directly at info@ratevault.org.").addClass('show');
     })
     .finally(function () {
       $btn.prop('disabled', false).text(btnText);
