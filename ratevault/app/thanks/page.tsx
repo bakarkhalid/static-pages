@@ -1,0 +1,104 @@
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Thank You — RateVault',
+  description: 'Thank you for your submission. Our team will be in touch within one business day.',
+  robots: { index: false, follow: false },
+};
+
+const checkCircleSvg = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <polyline points="9 12 11 14 15 10" />
+  </svg>
+);
+
+export default function ThanksPage() {
+  return (
+    <section className="thanks-page" aria-live="polite">
+      <div className="container">
+        <div className="thanks-inner">
+          <div className="thanks-check">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+          </div>
+
+          <h1>Thank You for Your Submission!</h1>
+          <p className="thanks-sub">
+            We&apos;ve received your deposit comparison request and our team is already working on
+            finding you the best fixed term deposit rates available from APRA-regulated
+            institutions.
+          </p>
+
+          <div className="thanks-card">
+            <h2>What Happens Next?</h2>
+            <ol className="next-steps">
+              <li>
+                <span className="ns-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
+                  </svg>
+                </span>
+                <div>
+                  <h3>1. Rate Analysis (Within 24 Hours)</h3>
+                  <p>Our team will analyse current fixed term deposit rates from leading APRA-regulated Australian banks and financial institutions.</p>
+                </div>
+              </li>
+              <li>
+                <span className="ns-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                  </svg>
+                </span>
+                <div>
+                  <h3>2. Personalised Consultation</h3>
+                  <p>A member of our team will contact you to discuss your personalised deposit rate comparison and answer any questions.</p>
+                </div>
+              </li>
+              <li>
+                <span className="ns-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                    <polyline points="22 6 12 13 2 6" />
+                  </svg>
+                </span>
+                <div>
+                  <h3>3. Detailed Deposit Comparison</h3>
+                  <p>You&apos;ll receive a comprehensive comparison showing the best available fixed term deposit rates from multiple Australian institutions.</p>
+                </div>
+              </li>
+              <li>
+                <span className="ns-icon ns-icon-green">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </span>
+                <div>
+                  <h3>4. Simple Application Process</h3>
+                  <p>Once you&apos;ve chosen your preferred deposit, we&apos;ll guide you through the straightforward application process.</p>
+                </div>
+              </li>
+            </ol>
+          </div>
+
+          <div className="thanks-info">
+            <h3>Important Information</h3>
+            <ul>
+              <li>{checkCircleSvg} All institutions we compare are APRA-regulated Australian banks and financial institutions</li>
+              <li>{checkCircleSvg} Your deposits are protected up to $250,000 per account holder under the Financial Claims Scheme</li>
+              <li>{checkCircleSvg} Our comparison service is completely free</li>
+              <li>{checkCircleSvg} RateVault is a comparison aggregator — we do not provide financial advice</li>
+            </ul>
+          </div>
+
+          <div className="thanks-contact">
+            <p>Have questions?</p>
+            <a href="mailto:info@ratevault.org">info@ratevault.org</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
