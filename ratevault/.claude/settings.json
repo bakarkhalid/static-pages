@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell($codeCmd = \\(Get-Command code.cmd -ErrorAction SilentlyContinue\\).Source; if \\(-not $codeCmd\\) { $codeCmd = \\(Get-Command code -ErrorAction SilentlyContinue\\).Source }; if \\($codeCmd\\) { & $codeCmd \"e:\\\\my-git-repos\\\\static-pages\\\\ratevault-crm\"; \"Opened with: $codeCmd\" } else { \"code CLI not found on PATH\" })",
+      "PowerShell(Get-NetTCPConnection -LocalPort 3000 -ErrorAction SilentlyContinue)",
+      "PowerShell(try { Stop-Process -Id 13000 -Force -ErrorAction Stop; \"Stopped 13000\" } catch { \"13000 not running: $\\($_.Exception.Message\\)\" }; Get-Process -Name node -ErrorAction SilentlyContinue | Select-Object Id, ProcessName, StartTime)",
+      "PowerShell(Get-NetTCPConnection -State Listen | Where-Object { $_.LocalPort -in 3000,3001,3002 } | Select-Object LocalPort, OwningProcess | Format-Table -AutoSize)"
+    ]
+  }
+}

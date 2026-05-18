@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-const SCRIPT_URL =
-  'https://script.google.com/macros/s/AKfycbyzF0HnJqQMo5_D1K-DGjrYzT4dYca3Ht-okNPVLdSNEhsbimxg8mXyG2Et17GUnw/exec';
+const INTAKE_URL =
+  process.env.NEXT_PUBLIC_CRM_INTAKE_URL ?? 'http://localhost:3001/api/leads/intake';
 
 const AMOUNT_OPTIONS = [
   '$50,000 - $100,000',
@@ -107,14 +107,14 @@ export function EnquiryForm() {
         ready_to_invest: values.ready,
       };
 
-      const res = await fetch(SCRIPT_URL, {
+      const res = await fetch(INTAKE_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
 
-      if (res.ok && (data.success === true || data.success === 'true')) {
+      if (res.ok && data.success === true) {
         router.push('/thanks');
       } else {
         setErrorMessage(
