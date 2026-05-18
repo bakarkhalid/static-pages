@@ -146,17 +146,19 @@ $(function () {
     var $form = $(this);
     var phRaw = $('#phone').val().replace(/[\s()-]/g, '').replace(/^0/, '').replace(/^\+?61/, '');
     var fullName = $.trim($('#fullname').val());
+    var emailAddr = $.trim($('#email').val());
 
     var payload = {
+      access_key: 'e0369e40-4dc0-4f35-968d-978c1c024858',
+      subject: 'New SecureYield enquiry — ' + fullName,
+      from_name: 'SecureYield Website',
       name: fullName,
-      email: $.trim($('#email').val()),
+      email: emailAddr,
       phone: '+61 ' + phRaw,
       investment_amount: $('#amount').val(),
       preferred_term: $('#term').val(),
       ready_to_invest: $('#ready').val(),
-      _subject: 'New SecureYield enquiry — ' + fullName,
-      _template: 'table',
-      _captcha: 'false'
+      replyto: emailAddr
     };
 
     var $btn = $form.find('button[type=submit]');
@@ -164,20 +166,13 @@ $(function () {
     $btn.prop('disabled', true).text('Sending…');
     $('#formError').removeClass('show');
 
-    var endpoint = $form.attr('action').replace('formsubmit.co/', 'formsubmit.co/ajax/');
-
-    // URL-encode the body to avoid a CORS preflight request.
-    // application/x-www-form-urlencoded is a "simple" content type, so the
-    // browser skips the OPTIONS preflight that FormSubmit's CORS layer fails.
-    var formBody = new URLSearchParams();
-    Object.keys(payload).forEach(function (key) {
-      formBody.append(key, payload[key]);
-    });
-
-    fetch(endpoint, {
+    fetch($form.attr('action'), {
       method: 'POST',
-      headers: { 'Accept': 'application/json' },
-      body: formBody
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(payload)
     })
     .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
     .then(function (result) {
