@@ -7,19 +7,16 @@ $(function () {
 
   /* ──────────────────────────────────────────
      Sticky header — add shadow once scrolled
+     Back-to-top button — show after 400px
      ────────────────────────────────────────── */
+  var $btnTop = $('#backToTop');
   $(window).on('scroll', function () {
-    $('.site-header').toggleClass('scrolled', $(window).scrollTop() > 10);
+    var y = $(window).scrollTop();
+    $('.site-header').toggleClass('scrolled', y > 10);
+    $btnTop.toggleClass('show', y > 400);
   });
-
-  /* ──────────────────────────────────────────
-     Mobile menu toggle
-     ────────────────────────────────────────── */
-  $('.hamburger').on('click', function () {
-    $('.nav-links').toggleClass('open');
-  });
-  $('.nav-links a').on('click', function () {
-    $('.nav-links').removeClass('open');
+  $btnTop.on('click', function () {
+    $('html, body').animate({ scrollTop: 0 }, 600);
   });
 
   /* ──────────────────────────────────────────
@@ -37,110 +34,67 @@ $(function () {
   checkReveal();
 
   /* ──────────────────────────────────────────
-     Animated number counters (stats bar)
+     Custom dropdowns (stepped form)
      ────────────────────────────────────────── */
-  var countersDone = false;
-  function animateCounters() {
-    if (countersDone) return;
-    if ($('.stats-bar').offset().top < $(window).scrollTop() + $(window).height()) {
-      countersDone = true;
-      $('.stat .num').each(function () {
-        var $el = $(this),
-            target = +$el.data('count'),
-            suffix = $el.data('suffix') || '';
-        $({ n: 0 }).animate({ n: target }, {
-          duration: 1400,
-          easing: 'swing',
-          step: function (now) { $el.text(Math.floor(now) + suffix); },
-          complete: function () { $el.text(target + suffix); }
-        });
-      });
-    }
-  }
-  $(window).on('scroll', animateCounters);
-  animateCounters();
-
-  /* ──────────────────────────────────────────
-     FAQ accordion
-     ────────────────────────────────────────── */
-  $('.faq-q').on('click', function () {
-    var $item = $(this).closest('.faq-item');
-    var $ans  = $item.find('.faq-a');
-
-    if ($item.hasClass('open')) {
-      $ans.css('max-height', 0);
-      $item.removeClass('open');
-    } else {
-      // Close any other open items first
-      $('.faq-item.open .faq-a').css('max-height', 0);
-      $('.faq-item.open').removeClass('open');
-      // Open this one
-      $item.addClass('open');
-      $ans.css('max-height', $ans[0].scrollHeight + 'px');
-    }
+  $(document).on('click', '.dropdown-toggle', function (e) {
+    e.stopPropagation();
+    var $dd = $(this).closest('.dropdown');
+    var wasOpen = $dd.hasClass('open');
+    $('.dropdown').removeClass('open');
+    if (!wasOpen) $dd.addClass('open');
   });
 
+  $(document).on('click', '.dropdown-menu li', function () {
+    var $li = $(this);
+    var $dd = $li.closest('.dropdown');
+    var value = $li.data('value');
+
+    $dd.find('.dropdown-menu li').removeClass('selected');
+    $li.addClass('selected');
+    $dd.find('.dropdown-label').text(value);
+    $dd.addClass('filled').removeClass('error');
+    $dd.find('input[type=hidden]').val(value);
+    $dd.removeClass('open');
+  });
+
+  $(document).on('click', function () { $('.dropdown').removeClass('open'); });
+  $(document).on('keydown', function (e) { if (e.key === 'Escape') $('.dropdown').removeClass('open'); });
+
   /* ──────────────────────────────────────────
-     Term filter buttons (rates table)
+     Step navigation
      ────────────────────────────────────────── */
-  $('.term-filter button').on('click', function () {
-    $('.term-filter button').removeClass('active');
-    $(this).addClass('active');
+  function showStep($form, step) {
+    $form.find('.form-step').removeClass('active');
+    $form.find('.form-step[data-step="' + step + '"]').addClass('active');
+  }
 
-    var t = $(this).data('term');
-    var shown = 0;
+  $('.step-next').on('click', function () {
+    var $form = $(this).closest('form');
+    var $current = $(this).closest('.form-step');
 
-    $('#ratesTable tbody tr').each(function () {
-      if (t === 'all' || String($(this).data('term')) === String(t)) {
-        $(this).show();
-        shown++;
-      } else {
-        $(this).hide();
+    // Validate all dropdowns in current step
+    var valid = true;
+    $current.find('.dropdown').each(function () {
+      if (!$(this).find('input[type=hidden]').val()) {
+        $(this).addClass('error');
+        valid = false;
       }
     });
+    if (!valid) return;
 
-    $('#rowCount').text(shown);
+    showStep($form, $(this).data('target-step'));
   });
 
-  /* ──────────────────────────────────────────
-     Sortable table columns
-     ────────────────────────────────────────── */
-  var sortState = { col: 'rate', dir: 'desc' };
+  $('.step-back').on('click', function () {
+    showStep($(this).closest('form'), $(this).data('target-step'));
+  });
 
-  $('th[data-sort]').on('click', function () {
-    var col = $(this).data('sort');
-
-    if (sortState.col === col) {
-      sortState.dir = (sortState.dir === 'asc') ? 'desc' : 'asc';
-    } else {
-      sortState.col = col;
-      sortState.dir = 'desc';
+  // Clear consent error when checked
+  $(document).on('change', '#consent', function () {
+    if (this.checked) {
+      $(this).closest('.consent').removeClass('error');
+      $('.consent-err').removeClass('show');
     }
-
-    // Update header arrows
-    $('th[data-sort]').removeClass('sorted').find('.arr').text('↕');
-    $(this).addClass('sorted').find('.arr').text(sortState.dir === 'desc' ? '▼' : '▲');
-
-    // Sort rows
-    var rows = $('#ratesTable tbody tr').get();
-    rows.sort(function (a, b) {
-      var va = +$(a).data(col),
-          vb = +$(b).data(col);
-      return sortState.dir === 'asc' ? va - vb : vb - va;
-    });
-    $.each(rows, function (_, r) { $('#ratesTable tbody').append(r); });
-  });
-
-  /* ──────────────────────────────────────────
-     Row "Enquire" buttons → scroll to form
-     and pre-fill the message field
-     ────────────────────────────────────────── */
-  $(document).on('click', '.row-cta', function () {
-    var bank = $(this).data('bank');
-    $('#msg').val("I'd like more information about the rate from " + bank + ".");
-    $('html, body').animate({
-      scrollTop: $('#enquire').offset().top - 60
-    }, 600);
   });
 
   /* ──────────────────────────────────────────
@@ -151,7 +105,6 @@ $(function () {
     var ok = true;
     $('.field').removeClass('error');
 
-    // Required text/select fields
     function req(id) {
       var v = $.trim($('#' + id).val());
       if (!v) {
@@ -159,10 +112,7 @@ $(function () {
         ok = false;
       }
     }
-    req('fname');
-    req('lname');
-    req('amount');
-    req('term');
+    req('fullname');
 
     // Email format
     var em = $.trim($('#email').val());
@@ -179,46 +129,69 @@ $(function () {
       ok = false;
     }
 
+    // Consent checkbox
+    var $consent = $('#consent');
+    if (!$consent.is(':checked')) {
+      $consent.closest('.consent').addClass('error');
+      $('.consent-err').addClass('show');
+      ok = false;
+    } else {
+      $consent.closest('.consent').removeClass('error');
+      $('.consent-err').removeClass('show');
+    }
+
     if (!ok) return;
 
-    // Build payload — normalise phone to +61 format for the email
+    // Build payload — JSON body matches FormSubmit's documented AJAX format
     var $form = $(this);
-    var fd = new FormData(this);
     var phRaw = $('#phone').val().replace(/[\s()-]/g, '').replace(/^0/, '').replace(/^\+?61/, '');
-    fd.set('phone', '+61 ' + phRaw);
+    var fullName = $.trim($('#fullname').val());
+
+    var payload = {
+      name: fullName,
+      email: $.trim($('#email').val()),
+      phone: '+61 ' + phRaw,
+      investment_amount: $('#amount').val(),
+      preferred_term: $('#term').val(),
+      ready_to_invest: $('#ready').val(),
+      _subject: 'New SecureYield enquiry — ' + fullName,
+      _template: 'table',
+      _captcha: 'false'
+    };
 
     var $btn = $form.find('button[type=submit]');
     var btnText = $btn.text();
     $btn.prop('disabled', true).text('Sending…');
     $('#formError').removeClass('show');
 
-    // Derive AJAX endpoint from the form's action
     var endpoint = $form.attr('action').replace('formsubmit.co/', 'formsubmit.co/ajax/');
 
-    $.ajax({
-      url: endpoint,
+    fetch(endpoint, {
       method: 'POST',
-      data: fd,
-      processData: false,
-      contentType: false,
-      dataType: 'json'
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(payload)
     })
-    .done(function (res) {
-      if (res && (res.success === 'true' || res.success === true)) {
-        $('#formSuccess').addClass('show');
-        $form[0].reset();
-        $('html, body').animate({
-          scrollTop: $('#formSuccess').offset().top - 100
-        }, 400);
-        setTimeout(function () { $('#formSuccess').removeClass('show'); }, 8000);
+    .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+    .then(function (result) {
+      console.log('FormSubmit response:', result);
+      var res = result.data;
+      if (result.ok && res && (res.success === 'true' || res.success === true)) {
+        window.location.href = 'thanks.html';
       } else {
-        $('#formError').addClass('show');
+        var msg = (res && res.message)
+          ? res.message
+          : "Sorry, we couldn't send your enquiry. Please try again, or email us directly.";
+        $('#formError').text('⚠ ' + msg).addClass('show');
       }
     })
-    .fail(function () {
-      $('#formError').addClass('show');
+    .catch(function (err) {
+      console.error('FormSubmit error:', err);
+      $('#formError').text("⚠ Network error — please try again, or email us directly at enquiries@secureyield.example.").addClass('show');
     })
-    .always(function () {
+    .finally(function () {
       $btn.prop('disabled', false).text(btnText);
     });
   });
