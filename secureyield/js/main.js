@@ -89,14 +89,6 @@ $(function () {
     showStep($(this).closest('form'), $(this).data('target-step'));
   });
 
-  // Clear consent error when checked
-  $(document).on('change', '#consent', function () {
-    if (this.checked) {
-      $(this).closest('.consent').removeClass('error');
-      $('.consent-err').removeClass('show');
-    }
-  });
-
   /* ──────────────────────────────────────────
      Enquiry form — client-side validation
      ────────────────────────────────────────── */
@@ -127,17 +119,6 @@ $(function () {
     if (!/^[234678]\d{8}$/.test(ph)) {
       $('#phone').closest('.field').addClass('error');
       ok = false;
-    }
-
-    // Consent checkbox
-    var $consent = $('#consent');
-    if (!$consent.is(':checked')) {
-      $consent.closest('.consent').addClass('error');
-      $('.consent-err').addClass('show');
-      ok = false;
-    } else {
-      $consent.closest('.consent').removeClass('error');
-      $('.consent-err').removeClass('show');
     }
 
     if (!ok) return;
